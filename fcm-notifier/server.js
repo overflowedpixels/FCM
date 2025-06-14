@@ -12,7 +12,14 @@ initializeApp({ credential: cert(serviceAccount) });
 app.post('/send', async (req, res) => {
   try {
     const messaging = getMessaging();
-    const result = await messaging.send(req.body.message);
+    const { message, senderToken } = req.body;
+    // Inject senderToken into data payload
+    message.data = {
+      ...message.data,
+      senderToken: senderToken
+    };
+
+    const result = await messaging.send(message);
     res.status(200).json({ success: true, result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
